@@ -6,5 +6,10 @@
 		"strict": true,
 		"outDir": "./dist",
 		"module": "CommonJS"
-	}
+	},
+  "include": [
+    "test",
+    "src"
+  ],
+  "typeAcquisition": { "enable":  false }
 }
