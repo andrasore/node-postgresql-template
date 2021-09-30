@@ -18,18 +18,23 @@ const app = express()
 app.post('/shorten/:url', async (req, res, next) => {
   try {
     const url = decodeUrlToString(req.params.url)
-    const id = await database.tryGetIdByUrl(url)
-    if (id === null) {
+    const result = await database.tryGetByUrl(url)
+    if (result === null) {
       const newId = await database.insertUrl(url)
-      const shortUrl = converter.idToUrl(newId).href
+      const shortUrl = converter.idToUrl(Number(newId)).href
       // this shouln't actually get stored because of our implementation
       await database.updateUrl(newId, shortUrl)
       res.send(shortUrl)
+    } else {
+      res.send(result.shortUrl)
     }
-    res.json('foo')
   } catch (err) {
     return next(err)
   }
+})
+
+app.get('/:shortUrl', async (req, res, next) => {
+
 })
 
 database

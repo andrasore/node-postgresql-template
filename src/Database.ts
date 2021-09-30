@@ -1,14 +1,18 @@
-import { Sequelize, DataTypes } from 'sequelize'
-
-const USE_SQLITE = process.env.USE_SQLITE === 'true'
+import { Sequelize, DataTypes, ModelCtor } from 'sequelize'
+import { ShortUrl } from './ShortUrl'
 
 export class Database {
-  constructor (dbUrl: string) {
+  constructor (dbUrl: string, useSqlite = false) {
     this.dbUrl = dbUrl
+    this.useSqlite = useSqlite
   }
 
+  private readonly useSqlite: boolean
+  private readonly dbUrl: string
+  private ShortUrl!: ModelCtor<any>
+
   async init (): Promise<void> {
-    const sequelize = USE_SQLITE
+    const sequelize = this.useSqlite
       ? new Sequelize('sqlite::memory')
       : new Sequelize(this.dbUrl)
 
@@ -26,19 +30,22 @@ export class Database {
     })
 
     await ShortUrl.sync({ force: true })
+
+    this.ShortUrl = ShortUrl
   }
 
-  private readonly dbUrl: string
-
-  async tryGetIdByUrl (url: string): Promise<number | null> {
-
+  async tryGetByUrl (url: string): Promise<ShortUrl | null> {
+    return await this.ShortUrl.findOne({ where: { longUrl: url } })
   }
 
-  async insertUrl (url: string): Promise<number> {
-
+  async insertUrl (url: string): Promise<string> {
+    const result = await this.ShortUrl.create({ longUrl: url })
+    return result.id
   }
 
-  async updateUrl (id: number, shortUrl: string): Promise<void> {
-
+  async updateUrl (id: string, shortUrl: string): Promise<void> {
+    const result = await this.ShortUrl.findByPk(id)
+    result.shortUrl = shortUrl
+    await result.save()
   }
 }

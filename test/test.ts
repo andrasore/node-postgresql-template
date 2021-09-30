@@ -1,42 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
 import assert from 'assert'
+import { Database } from '../src/Database'
 import { UrlToIdConverter } from '../src/UrlToIdConverter'
 
-async function sequelizeTests (sequelize: Sequelize): Promise<void> {
-  await sequelize.authenticate()
-
-  const User = sequelize.define('User', {
-    // Model attributes are defined here
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    lastName: {
-      type: DataTypes.STRING
-      // allowNull defaults to true
-    }
-  }, {
-    // Other model options go here
-  })
-
-  await User.sync({ force: true })
-
-  await User.create({ firstName: 'foo', lastName: 'bar' })
-}
-
-describe('tests', function () {
-  it('sequelize should work with sqlite', async function () {
-    const sequelize = new Sequelize('sqlite::memory')
-    await sequelizeTests(sequelize)
-  })
-
-  it('sequelize should work with postgres', async function () {
-    const sequelize = new Sequelize('postgres://user:pass@db:5432/test')
-    await sequelizeTests(sequelize)
-  })
-})
-
-describe.only('URL Shortener', function () {
+describe('URL Shortener', function () {
   it('Should return the hexadecimal representation for an id', async function () {
     const converter = new UrlToIdConverter('http://foo.bar')
 
@@ -57,5 +23,32 @@ describe.only('URL Shortener', function () {
     const converter = new UrlToIdConverter('http://foo.bar')
 
     assert.throws(() => converter.urlToId(new URL('http://foo.bar/FFFFFFFFF')), RangeError)
+  })
+})
+
+const USE_SQLITE = true
+
+describe('Database', function () {
+  it('Insert and tryGet should work', async function () {
+    const database = new Database('foo.url', USE_SQLITE)
+    await database.init()
+    await database.insertUrl('http://foo.bar')
+
+    const result = await database.tryGetByUrl('http://foo.bar')
+
+    assert(result !== null)
+    assert.strictEqual(result.longUrl, 'http://foo.bar')
+  })
+
+  it('Update should work', async function () {
+    const database = new Database('foo.url', USE_SQLITE)
+    await database.init()
+    const id = await database.insertUrl('http://foo.bar')
+
+    await database.updateUrl(id, 'http://baz.ly/asdfasdf')
+
+    const result = await database.tryGetByUrl('http://foo.bar')
+    assert(result !== null)
+    assert.strictEqual(result.shortUrl, 'http://baz.ly/asdfasdf')
   })
 })
