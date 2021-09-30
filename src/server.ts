@@ -24,9 +24,9 @@ app.post('/shorten/:url', async (req, res, next) => {
       const shortUrl = converter.idToUrl(Number(newId)).href
       // this shouln't actually get stored because of our implementation
       await database.updateUrl(newId, shortUrl)
-      res.send(shortUrl)
+      return res.send(shortUrl)
     } else {
-      res.send(result.shortUrl)
+      return res.send(result.shortUrl)
     }
   } catch (err) {
     return next(err)
@@ -34,7 +34,17 @@ app.post('/shorten/:url', async (req, res, next) => {
 })
 
 app.get('/:shortUrl', async (req, res, next) => {
-
+  try {
+    const result = await database.tryGetByShortUrl(req.params.shortUrl)
+    if (result === null) {
+      return res.status(404)
+    }
+    else {
+      return res.redirect(result.longUrl)
+    }
+  } catch (err) {
+    return next(err)
+  }
 })
 
 database

@@ -38,6 +38,10 @@ export class Database {
     return await this.ShortUrl.findOne({ where: { longUrl: url } })
   }
 
+  async tryGetByShortUrl (shortUrl: string): Promise<ShortUrl | null> {
+    return await this.ShortUrl.findOne({ where: { shortUrl: shortUrl } })
+  }
+
   async insertUrl (url: string): Promise<string> {
     const result = await this.ShortUrl.create({ longUrl: url })
     return result.id

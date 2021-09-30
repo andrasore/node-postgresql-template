@@ -51,4 +51,16 @@ describe('Database', function () {
     assert(result !== null)
     assert.strictEqual(result.shortUrl, 'http://baz.ly/asdfasdf')
   })
+
+  it('Get by short url should work', async function () {
+    const database = new Database('foo.url', USE_SQLITE)
+    await database.init()
+    const id = await database.insertUrl('http://foo.bar')
+
+    await database.updateUrl(id, 'http://baz.ly/asdfasdf')
+
+    const result = await database.tryGetByShortUrl('http://baz.ly/asdfasdf')
+    assert(result !== null)
+    assert.strictEqual(result.longUrl, 'http://foo.bar')
+  })
 })
