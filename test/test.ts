@@ -53,11 +53,9 @@ describe.only('URL Shortener', function () {
     assert.deepStrictEqual(result, 16)
   })
 
-  it('Should throw for too large  shortened url', async function () {
+  it('Should throw for too large shortened url', async function () {
     const converter = new UrlToIdConverter('http://foo.bar')
 
-    const result = converter.urlToId(new URL('http://foo.bar/00000010'))
-
-    assert.deepStrictEqual(result, 16)
+    assert.throws(() => converter.urlToId(new URL('http://foo.bar/FFFFFFFFF')), RangeError)
   })
 })

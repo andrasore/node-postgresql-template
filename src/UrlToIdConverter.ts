@@ -2,6 +2,10 @@ import { URL } from 'url'
 
 const MAX_ID = 8 ** 8 - 1
 
+/** This converter bijectively turns ID's coming from the db into a hex string
+ * which can be used for our URLs. This is bad because it's easy to guess short
+ * URL's, but at least we avoid short url collision.
+ * */
 export class UrlToIdConverter {
   constructor (basePath: string) {
     this.basePath = new URL(basePath)
