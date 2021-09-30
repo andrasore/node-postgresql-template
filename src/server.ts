@@ -38,8 +38,7 @@ app.get('/:shortUrl', async (req, res, next) => {
     const result = await database.tryGetByShortUrl(req.params.shortUrl)
     if (result === null) {
       return res.status(404)
-    }
-    else {
+    } else {
       return res.redirect(result.longUrl)
     }
   } catch (err) {
