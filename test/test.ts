@@ -10,20 +10,6 @@ describe('URL Shortener', function () {
 
     assert.deepStrictEqual(result.href, 'http://foo.bar/00000010')
   })
-
-  it('Should return the id for a shortened url', async function () {
-    const converter = new UrlToIdConverter('http://foo.bar')
-
-    const result = converter.urlToId(new URL('http://foo.bar/00000010'))
-
-    assert.deepStrictEqual(result, 16)
-  })
-
-  it('Should throw for too large shortened url', async function () {
-    const converter = new UrlToIdConverter('http://foo.bar')
-
-    assert.throws(() => converter.urlToId(new URL('http://foo.bar/FFFFFFFFF')), RangeError)
-  })
 })
 
 const USE_SQLITE = true

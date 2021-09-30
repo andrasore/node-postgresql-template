@@ -23,17 +23,6 @@ export class UrlToIdConverter {
     return result
   }
 
-  urlToId (url: URL): number {
-    this.validateUrl(url)
-
-    const idHexString = url.pathname.slice(1)
-    const result = Number.parseInt(idHexString, 16)
-
-    this.validateId(result)
-
-    return result
-  }
-
   private validateId (id: number): void {
     if (isNaN(id)) {
       throw new RangeError('Id should be a number!')
@@ -46,12 +35,6 @@ export class UrlToIdConverter {
     }
     if (id >= MAX_ID) {
       throw new RangeError('Id should be smaller than MAX_ID (8 ** 8)!')
-    }
-  }
-
-  private validateUrl (url: URL): void {
-    if (url.origin !== this.basePath.origin) {
-      throw new RangeError('Input url should have basePath as origin!')
     }
   }
 }
